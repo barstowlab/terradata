@@ -5,46 +5,122 @@ Created on Thu Oct 24 14:28:41 2019
 @author: buz
 """
 
+# ------------------------------------------------------------------------------------------------ #
+def linearFit(x, a, b):
+	return a + x*b
+# ------------------------------------------------------------------------------------------------ #
+
+
+# ------------------------------------------------------------------------------------------------ #
+def CalculateDateFromKey(key):
+	date = key.split('-')
+	year = int(date[0])
+	month = int(date[1])
+	day = int(date[2])
+	
+	return year, month, day
+# ------------------------------------------------------------------------------------------------ #
+
+# ------------------------------------------------------------------------------------------------ #
+def CalculateMonthsFromStart(dateKey, startYear, startMonth, startDay):
+	
+	year, month, day = CalculateDateFromKey(dateKey)
+	
+	monthsFromStart = (year - startYear)*12 + (month - startMonth) + ((day - startDay)/30)
+
+	return monthsFromStart
+# ------------------------------------------------------------------------------------------------ #
+	
+
 from numpy import mean
 
 from matplotlib.pyplot import figure, show, plot
 
-efficiencyData = efficiencyDict['2006-07-01'][2].data
-efficiencyMask = efficiencyDict['2006-07-01'][2].mask
+from scipy.optimize import curve_fit
 
-latitudeData = efficiencyDict['2006-07-01'][0]
-longitudeData = efficiencyDict['2006-07-01'][1]
 
-latitudeLength = len(latitudeData)
-longitudeLength = len(longitudeData)
 
-latitudeAveragedEfficiencies = []
+efficiencyDictKeys = list(efficiencyDict.keys())
 
-i = 0
-while i < latitudeLength:
+globallyAveragedEfficiencies = []
+months = []
+timeKeys = []
 
-	validDataPointsOnLineOfLatitude = []
+startDate = efficiencyDictKeys[0]
+startYear, startMonth, startDay = CalculateDateFromKey(startDate)
 
-	j = 0
+k = 0
 
-	while j < longitudeLength:
+while k < len(efficiencyDictKeys):
 
-		dataPoint = efficiencyData[i][j]
-		dataPointMask = efficiencyMask[i][j]
+	key = efficiencyDictKeys[k]
+	
+	print(key)
+	
+	efficiencyData = efficiencyDict[key][2].data
+	efficiencyMask = efficiencyDict[key][2].mask
 
-		if dataPointMask == False:
-			validDataPointsOnLineOfLatitude.append(dataPoint)
+	latitudeData = efficiencyDict[key][0]
+	longitudeData = efficiencyDict[key][1]
 
-		j += 1
+	latitudeLength = len(latitudeData)
+	longitudeLength = len(longitudeData)
 
-	latitudeAveragedEfficiency = mean(validDataPointsOnLineOfLatitude)
-	latitudeAveragedEfficiencies.append(latitudeAveragedEfficiency)
+	latitudeAveragedEfficiencies = []
+	latitudesWithEfficiencyData = []
+	
+	monthsSinceStart = CalculateMonthsFromStart(key, startYear, startMonth, startDay)
 
-	i += 1
-    
+	i = 0
+	while i < latitudeLength:
+
+		validDataPointsOnLineOfLatitude = []
+
+		j = 0
+	
+		latitude = latitudeData[i]
+
+		while j < longitudeLength:
+
+			longitude = longitudeData[j]
+
+			dataPoint = efficiencyData[i][j]
+			dataPointMask = efficiencyMask[i][j]
+
+			if dataPointMask == False:
+				validDataPointsOnLineOfLatitude.append(dataPoint)
+			
+
+			j += 1
+
+		if len(validDataPointsOnLineOfLatitude) > 0:
+			latitudeAveragedEfficiency = mean(validDataPointsOnLineOfLatitude)
+			latitudeAveragedEfficiencies.append(latitudeAveragedEfficiency)
+			latitudesWithEfficiencyData.append(latitude)
+
+		i += 1
+
+
+
+	# figure()
+# 	plot(latitudesWithEfficiencyData, latitudeAveragedEfficiencies)
+# 	xlabel('Latitude')
+# 	ylabel('Photosynthetic Efficiency')
+# 
+# 	show()
+
+	globallyAveragedEfficiency = mean(latitudeAveragedEfficiencies)
+	months.append(monthsSinceStart  e)
+	globallyAveragedEfficiencies.append(globallyAveragedEfficiency)
+	
+	k += 1
+
 figure()
-plot(latitudeData, latitudeAveragedEfficiencies)
-xlabel('Latitude')
-ylabel('Photosynthetic Efficiency')
+plot(months, globallyAveragedEfficiencies)
+xlabel('Month from Start')
+ylabel('Globally Averaged Photosynthetic Efficiency')
 
 show()
+
+
+
