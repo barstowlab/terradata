@@ -109,3 +109,6 @@ venv.bak/
 
 # Git specific directories
 output/
+
+# Data stuff
+/Data/
