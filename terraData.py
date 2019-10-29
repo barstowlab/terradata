@@ -193,6 +193,8 @@ titleText="Insolation: ", vmin=0, vmax=600, showPlots=False):
 	fig = plt.figure(figsize=(xWidthScaled, yWidthScaled), dpi=dpi)
 
 	ax = plt.axes(projection=ccrs.PlateCarree())
+	
+	plt.colorbar(ax)
 
 	plt.contourf(lons, lats, data, 60, transform=ccrs.PlateCarree())
 	

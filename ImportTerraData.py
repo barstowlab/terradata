@@ -63,3 +63,28 @@ for file in insolFileList:
 	
 	insolDict[timeStamp] = [latitudeData, longitudeData, gridData]
 # ------------------------------------------------------------------------------------------------ #
+
+
+
+# ------------------------------------------------------------------------------------------------ #
+# Generate the efficiency calculated dataset
+
+efficiencyDict = {}
+efficiencyLAIDict = {}
+timeStamps = GetTimesFromFileList(insolFileList)
+
+for timeStamp in timeStamps:
+	
+	[latitudeData, longitudeData, solarEnergy] = insolDict[timeStamp]
+	solarEnergy  = solarEnergy*86400
+	
+	biomassEnergy = nppDict[timeStamp][2]*16000*2
+	
+	lai = laiDict[timeStamp][2]
+
+	efficiencyWithLai = (biomassEnergy/solarEnergy)/lai
+	efficiency = (biomassEnergy/solarEnergy)
+
+	efficiencyDict[timeStamp] = [latitudeData, longitudeData, efficiency]
+	efficiencyLAIDict[timeStamp] = [latitudeData, longitudeData, efficiencyWithLai]
+# ------------------------------------------------------------------------------------------------ #
