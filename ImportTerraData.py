@@ -9,7 +9,8 @@ from os.path import basename, splitext
 import cartopy.feature as cpf
 
 	
-
+# Change this to data if you have the full dataset
+# baseDir = 'Small Data/'
 baseDir = 'Data/'
 
 
