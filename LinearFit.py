@@ -1,5 +1,5 @@
 from numpy import mean, array
-from matplotlib.pyplot import figure, show, plot, xlabel, ylabel, legend
+from matplotlib.pyplot import figure, show, plot, xlabel, ylabel, legend, close
 from scipy.optimize import curve_fit
 
 

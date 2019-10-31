@@ -1,7 +1,7 @@
 # Sin fit
 
 from numpy import mean, array
-from matplotlib.pyplot import figure, show, plot, xlabel, ylabel
+from matplotlib.pyplot import figure, show, plot, xlabel, ylabel, close
 from scipy.optimize import curve_fit
 
 
