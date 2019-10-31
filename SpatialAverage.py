@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct 24 14:28:41 2019
-
-@author: buz
-"""
-
 # ------------------------------------------------------------------------------------------------ #
-def linearFit(x, a, b):
-	return a + x*b
+# Created by Buz
 # ------------------------------------------------------------------------------------------------ #
+
+
+from numpy import mean, array
+from matplotlib.pyplot import figure, show, plot, xlabel, ylabel
+from scipy.optimize import curve_fit
 
 
 # ------------------------------------------------------------------------------------------------ #
@@ -31,13 +28,6 @@ def CalculateMonthsFromStart(dateKey, startYear, startMonth, startDay):
 	return monthsFromStart
 # ------------------------------------------------------------------------------------------------ #
 	
-
-from numpy import mean
-
-from matplotlib.pyplot import figure, show, plot
-
-from scipy.optimize import curve_fit
-
 
 
 efficiencyDictKeys = list(efficiencyDict.keys())
@@ -117,16 +107,9 @@ while k < len(efficiencyDictKeys):
 
 figure()
 plot(months, globallyAveragedEfficiencies)
-xlabel('Month from Start')
-ylabel('Globally Averaged Photosynthetic Efficiency')
+xlabel("Time since July 2006 (months)")
+ylabel("Globally Averaged Photosynthetic Efficiency")
 
 show()
-
-
-
-fitToEfficiency = curve_fit(linearFit, months, globallyAveragedEfficiencies)
-plot(array(months), linearFit(array(months), fitToEfficiency[0][0], fitToEfficiency[0][1]))   
-
-
 
 
