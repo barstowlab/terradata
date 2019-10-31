@@ -124,3 +124,9 @@ show()
 
 
 
+fitToEfficiency = curve_fit(linearFit, months, globallyAveragedEfficiencies)
+plot(array(months), linearFit(array(months), fitToEfficiency[0][0], fitToEfficiency[0][1]))   
+
+
+
+
