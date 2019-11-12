@@ -27,15 +27,16 @@ def CalculateMonthsFromStart(dateKey, startYear, startMonth, startDay):
 
 	return monthsFromStart
 # ------------------------------------------------------------------------------------------------ #
+
 	
 # ------------------------------------------------------------------------------------------------ #
-def SpatiallyAverageEfficiencyData(efficiencyDict, keysToAverage, startYear, startMonth, startDay, \
+def SpatiallyAverageMaskedData(dataDict, keysToAverage, startYear, startMonth, startDay, \
 latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875], \
 includeMaskedPointsAsZeroInAverage=False):
 
 	k = 0
 	
-	globallyAveragedEfficiencies = []
+	globallyAveragedDataArray = []
 	months = []
 	
 	while k < len(keysToAverage):
@@ -44,17 +45,17 @@ includeMaskedPointsAsZeroInAverage=False):
 	
 		print(key)
 	
-		efficiencyData = efficiencyDict[key][2].data
-		efficiencyMask = efficiencyDict[key][2].mask
+		data = dataDict[key][2].data
+		mask = dataDict[key][2].mask
 
-		latitudeData = efficiencyDict[key][0]
-		longitudeData = efficiencyDict[key][1]
+		latitudeData = dataDict[key][0]
+		longitudeData = dataDict[key][1]
 
 		latitudeLength = len(latitudeData)
 		longitudeLength = len(longitudeData)
 
-		latitudeAveragedEfficiencies = []
-		latitudesWithEfficiencyData = []
+		latitudeAveragedDataArray = []
+		latitudesWithDataArray = []
 	
 		monthsSinceStart = CalculateMonthsFromStart(key, startYear, startMonth, startDay)
 
@@ -75,8 +76,8 @@ includeMaskedPointsAsZeroInAverage=False):
 
 					if longitude >= longitudeLimits[0] and longitude <= longitudeLimits[1]:
 
-						dataPoint = efficiencyData[i][j]
-						dataPointMask = efficiencyMask[i][j]
+						dataPoint = data[i][j]
+						dataPointMask = mask[i][j]
 
 						if dataPointMask == False:
 							validDataPointsOnLineOfLatitude.append(dataPoint)
@@ -87,21 +88,92 @@ includeMaskedPointsAsZeroInAverage=False):
 					j += 1
 
 			if len(validDataPointsOnLineOfLatitude) > 0:
-				latitudeAveragedEfficiency = mean(validDataPointsOnLineOfLatitude)
-				latitudeAveragedEfficiencies.append(latitudeAveragedEfficiency)
-				latitudesWithEfficiencyData.append(latitude)
+				latitudeAveragedData = mean(validDataPointsOnLineOfLatitude)
+				latitudeAveragedDataArray.append(latitudeAveragedData)
+				latitudesWithDataArray.append(latitude)
 
 			i += 1
 
 
-		globallyAveragedEfficiency = mean(latitudeAveragedEfficiencies)
+		globallyAveragedData = mean(latitudeAveragedDataArray)
 		months.append(monthsSinceStart)
-		globallyAveragedEfficiencies.append(globallyAveragedEfficiency)
+		globallyAveragedDataArray.append(globallyAveragedData)
 	
 		k += 1
 	
-	return months, globallyAveragedEfficiencies 
+	return months, globallyAveragedDataArray 
 # ------------------------------------------------------------------------------------------------ #
+
+
+
+# ------------------------------------------------------------------------------------------------ #
+def SpatiallyAverageUnmaskedData(dataDict, keysToAverage, startYear, startMonth, startDay, \
+latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875]):
+
+	k = 0
+	
+	globallyAveragedDataArray = []
+	months = []
+	
+	while k < len(keysToAverage):
+
+		key = keysToAverage[k]
+	
+		print(key)
+	
+		data = dataDict[key][2].data
+
+		latitudeData = dataDict[key][0]
+		longitudeData = dataDict[key][1]
+
+		latitudeLength = len(latitudeData)
+		longitudeLength = len(longitudeData)
+
+		latitudeAveragedDataArray = []
+		latitudesWithDataArray = []
+	
+		monthsSinceStart = CalculateMonthsFromStart(key, startYear, startMonth, startDay)
+
+		i = 0
+		while i < latitudeLength:
+			
+			validDataPointsOnLineOfLatitude = []
+
+			j = 0
+	
+			latitude = latitudeData[i]
+
+			if latitude <= latitudeLimits[0] and latitude >= latitudeLimits[1]:
+
+				while j < longitudeLength:
+
+					longitude = longitudeData[j]
+
+					if longitude >= longitudeLimits[0] and longitude <= longitudeLimits[1]:
+
+						dataPoint = data[i][j]
+						validDataPointsOnLineOfLatitude.append(dataPoint)
+						
+						
+					j += 1
+
+			if len(validDataPointsOnLineOfLatitude) > 0:
+				latitudeAveragedData = mean(validDataPointsOnLineOfLatitude)
+				latitudeAveragedDataArray.append(latitudeAveragedData)
+				latitudesWithDataArray.append(latitude)
+
+			i += 1
+
+
+		globallyAveragedData = mean(latitudeAveragedDataArray)
+		months.append(monthsSinceStart)
+		globallyAveragedDataArray.append(globallyAveragedData)
+	
+		k += 1
+	
+	return months, globallyAveragedDataArray 
+# ------------------------------------------------------------------------------------------------ #
+
 
 
 
@@ -116,16 +188,32 @@ startDate = keysToAverage[0]
 startYear, startMonth, startDay = CalculateDateFromKey(startDate)
 
 
-
-# monthsWithMaskedPoints, globallyAveragedEfficienciesWithMaskedPoints = \
-# SpatiallyAverageEfficiencyData(efficiencyDict, keysToAverage, startYear, startMonth, startDay, \
-# includeMaskedPointsAsZeroInAverage=True, \
-# latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
-# 
-monthsWithoutMaskedPoints, globallyAveragedEfficienciesWithoutMaskedPoints = \
-SpatiallyAverageEfficiencyData(efficiencyDict, keysToAverage, startYear, startMonth, startDay, \
-includeMaskedPointsAsZeroInAverage=False, \
+monthsForEfficiencyData, globallyAveragedEfficienciesWithMaskedPoints = \
+SpatiallyAverageMaskedData(efficiencyDict, keysToAverage, startYear, startMonth, startDay, \
+includeMaskedPointsAsZeroInAverage=True, \
 latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
+
+
+
+
+monthsForNPPData, globallyAveragedNPPsWithMaskedPoints = \
+SpatiallyAverageMaskedData(nppDict, keysToAverage, startYear, startMonth, startDay, \
+includeMaskedPointsAsZeroInAverage=True, \
+latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
+
+
+monthsForLAIData, globallyAveragedLAIsWithMaskedPoints = \
+SpatiallyAverageMaskedData(laiDict, keysToAverage, startYear, startMonth, startDay, \
+includeMaskedPointsAsZeroInAverage=True, \
+latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
+
+
+monthsForInsolData, globallyAveragedInsol = \
+SpatiallyAverageUnmaskedData(insolDict, keysToAverage, startYear, startMonth, startDay, \
+latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
+
+
+
 
 # Rachel this is the Amazon stuff for you
 # monthsWithMaskedPointsAmazon, amazonAveragedEfficienciesWithMaskedPoints = \
@@ -136,21 +224,34 @@ latitudeLimits=[89.875, -89.875], longitudeLimits=[-179.875, 179.875])
 
 
 figure()
-plot(monthsWithoutMaskedPoints, globallyAveragedEfficienciesWithoutMaskedPoints)
+plot(monthsForEfficiencyData, globallyAveragedEfficienciesWithMaskedPoints)
 xlabel("Time since July 2006 (months)")
 ylabel("Globally Averaged Photosynthetic Efficiency")
-title("Globally Averaged Photosynthetic Efficiencies Without Masked Points")
+title("Globally Averaged Photosynthetic Efficiencies With Masked Points")
 
-# figure()
-# plot(monthsWithMaskedPoints, globallyAveragedEfficienciesWithMaskedPoints)
-# xlabel("Time since July 2006 (months)")
-# ylabel("Globally Averaged Photosynthetic Efficiency")
-# title("Globally Averaged Photosynthetic Efficiencies With Masked Points")
+
+figure()
+plot(monthsForNPPData, globallyAveragedNPPsWithMaskedPoints)
+xlabel("Time since July 2006 (months)")
+ylabel("Globally Averaged NPP")
+title("Globally Averaged NPP With Masked Points")
+
+figure()
+plot(monthsForLAIData, globallyAveragedLAIsWithMaskedPoints)
+xlabel("Time since July 2006 (months)")
+ylabel("Globally Averaged LAI")
+title("Globally Averaged LAI With Masked Points")
+
+figure()
+plot(monthsForInsolData, globallyAveragedInsol)
+xlabel("Time since July 2006 (months)")
+ylabel("Globally Averaged Insolation")
+title("Globally Averaged Insolation")
+
+
 
 show()
 
-months = monthsWithoutMaskedPoints
-globallyAveragedEfficiencies = globallyAveragedEfficienciesWithoutMaskedPoints
 # ------------------------------------------------------------------------------------------------ #
 
 
